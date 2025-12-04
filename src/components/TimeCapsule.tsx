@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  TextField,
-  Flex,
-  View,
-  Button,
-  Text,
-} from "@aws-amplify/ui-react";
+import { TextField, Flex, View, Button, Text } from "@aws-amplify/ui-react";
 import { Dropdown } from "react-bootstrap";
 import { Season } from "../utils/dateUtils";
 
@@ -15,9 +9,7 @@ interface TimeCapsuleProps {
   ) => void;
   songLimit: number;
   randomSongsLength: number;
-  handlePlaylistNameCallback: (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => void;
+  handlePlaylistNameCallback: (e: React.ChangeEvent<HTMLInputElement>) => void;
   playlistName: string;
   handleCreatePlaylistCallback: () => void;
   handleAddSongsToPlaylistCallback: () => void;
@@ -47,18 +39,21 @@ const TimeCapsule: React.FC<TimeCapsuleProps> = ({
   const isTimeframeSelected = !!season && !!year;
 
   return (
-    <Flex direction="column" alignItems="center" justifyContent="center" gap="1rem">
-      {/* Error modal */}
+    <Flex
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      gap="1rem"
+    >
       {throwErrorState && (
-        <Flex direction="column" alignItems="center" gap="1rem" padding="2rem">
+        <Flex direction="column" alignItems="center" padding="2rem" gap="1rem">
           <Text
             color="red"
             fontSize="0.85rem"
             textAlign="center"
-            aria-label="Invalid timeframe error"
+            ariaLabel="Invalid timeframe error"
           >
-            Error: No songs found or rate limit exceeded.  
-            Try another timeframe.
+            Error: No songs found or rate limit exceeded. Try another timeframe.
           </Text>
 
           <Button variation="primary" onClick={() => window.location.reload()}>
@@ -67,14 +62,15 @@ const TimeCapsule: React.FC<TimeCapsuleProps> = ({
         </Flex>
       )}
 
-      {/* Selection card */}
       <View
         as="div"
-        borderRadius="6px"
-        boxShadow="0 4px 12px rgba(0,0,0,0.1)"
         padding="1.5rem"
         width="100%"
         maxWidth="600px"
+        borderRadius="6px"
+        style={{
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+        }}
       >
         <Dropdown style={{ paddingBottom: "1rem" }}>
           <Dropdown.Toggle variant="success">SEASON</Dropdown.Toggle>
@@ -96,42 +92,39 @@ const TimeCapsule: React.FC<TimeCapsuleProps> = ({
           </Text>
         )}
 
-        {/* Song limit input */}
         <TextField
           label="Number of Songs"
-          aria-label="Song limit input"
+          ariaLabel="Song limit input"
           type="number"
           variation="quiet"
           placeholder="Enter number of songs"
           isDisabled={!isTimeframeSelected}
           isRequired
           onChange={handleSongLimitAndRecommendationCallback}
-          marginTop="1rem"
+          marginBlockStart="1rem"
         />
 
-        {!!randomSongsLength && (
-          <Text fontSize="0.8rem" marginTop="0.5rem" color="#188754">
-            {randomSongsLength} songs found in this timeframe. Maximum 100 allowed.
+        {randomSongsLength > 0 && (
+          <Text fontSize="0.8rem" marginBlockStart="0.5rem" color="#188754">
+            {randomSongsLength} songs matched. (Max 100)
           </Text>
         )}
 
-        {/* Playlist name */}
         <TextField
           label="Playlist Name"
-          aria-label="Playlist name input"
+          ariaLabel="Playlist name input"
           type="text"
           variation="quiet"
           placeholder="Choose a playlist name"
           isRequired
           onChange={handlePlaylistNameCallback}
-          marginTop="1rem"
+          marginBlockStart="1rem"
         />
       </View>
 
-      {/* Buttons */}
       <Button
         variation="primary"
-        aria-label="Create playlist"
+        ariaLabel="Create playlist"
         onClick={handleCreatePlaylistCallback}
         isDisabled={!playlistName.trim()}
       >
@@ -140,7 +133,7 @@ const TimeCapsule: React.FC<TimeCapsuleProps> = ({
 
       <Button
         variation="primary"
-        aria-label="Add songs to playlist"
+        ariaLabel="Add songs to playlist"
         onClick={handleAddSongsToPlaylistCallback}
       >
         ADD SONGS TO PLAYLIST
@@ -150,7 +143,8 @@ const TimeCapsule: React.FC<TimeCapsuleProps> = ({
 
       {createdPlaylistIdsCount > 0 && (
         <Text fontSize="1rem">
-          Users have created <strong>{createdPlaylistIdsCount}</strong> playlists since 2022.
+          Users have created <strong>{createdPlaylistIdsCount}</strong>{" "}
+          playlists since 2022.
         </Text>
       )}
     </Flex>

@@ -1,87 +1,101 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Flex, Text } from '@aws-amplify/ui-react';
+import React, { useEffect, useState } from "react";
+import { Button, Flex, Text } from "@aws-amplify/ui-react";
 
-const CLIENT_ID = '1afe16f7b5c44f1ab21bc53d0af990fb';
-const SPOTIFY_AUTHORIZE_ENDPOINT = 'https://accounts.spotify.com/authorize';
-const REDIRECT_URI = 'http://localhost:3000/'; // for auth on localhost, change when hosting
-// const REDIRECT_URI = "https://spotify-recap.parsak.me/"; // for auth on azure hosting
+const CLIENT_ID = "1afe16f7b5c44f1ab21bc53d0af990fb";
+const SPOTIFY_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize";
+const REDIRECT_URI = "http://localhost:3000/";
+
 const SCOPES = [
-  'playlist-read-collaborative',
-  'playlist-modify-public',
-  'playlist-read-private',
-  'playlist-modify-private',
+  "playlist-read-collaborative",
+  "playlist-modify-public",
+  "playlist-read-private",
+  "playlist-modify-private",
 ];
-const SPACE_DELIMITER = '%20';
-const SCOPES_COMBINED = SCOPES.join(SPACE_DELIMITER);
+const SCOPES_COMBINED = SCOPES.join("%20");
 
-const getReturnedParamsFromSpotifyAuth = (hash) => {
-  const stringAfterHashtag = hash.substring(1);
-  const paramsInUrl = stringAfterHashtag.split('&');
-  const paramsSplitUp = paramsInUrl.reduce((accumulater, currentValue) => {
-    const [key, value] = currentValue.split('=');
-    accumulater[key] = value;
-    return accumulater;
-  }, {});
-  return paramsSplitUp;
-};
+interface SpotifyAuthParams {
+  access_token: string;
+  expires_in: string;
+  token_type: string;
+}
 
-function Header(props) {
+/** Safely parse Spotify auth hash fragment */
+function parseSpotifyHash(hash: string): SpotifyAuthParams | null {
+  if (!hash.startsWith("#")) return null;
+
+  const params = hash
+    .substring(1)
+    .split("&")
+    .reduce<Record<string, string>>((acc, pair) => {
+      const [key, value] = pair.split("=");
+      if (key && value) acc[key] = value;
+      return acc;
+    }, {});
+
+  if (!params.access_token || !params.expires_in || !params.token_type) {
+    return null;
+  }
+
+  return {
+    access_token: params.access_token,
+    expires_in: params.expires_in,
+    token_type: params.token_type,
+  };
+}
+
+const Header: React.FC = () => {
   const [isLoggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    if (window.location.hash) {
-      const { access_token, expires_in, token_type } =
-        getReturnedParamsFromSpotifyAuth(window.location.hash);
+    const parsed = parseSpotifyHash(window.location.hash);
+    if (!parsed) return;
 
-      localStorage.clear();
-      localStorage.setItem('accessToken', access_token);
-      localStorage.setItem('expiresIn', expires_in);
-      localStorage.setItem('tokenType', token_type);
-      setLoggedIn(true);
-      setTimeout(() => setLoggedIn(false), expires_in);
-    }
-  });
+    localStorage.setItem("accessToken", parsed.access_token);
+    localStorage.setItem("expiresIn", parsed.expires_in);
+    localStorage.setItem("tokenType", parsed.token_type);
+
+    setLoggedIn(true);
+
+    const timeout = setTimeout(() => {
+      setLoggedIn(false);
+    }, Number(parsed.expires_in) * 1000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   const handleLogin = () => {
-    window.location = `${SPOTIFY_AUTHORIZE_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES_COMBINED}&response_type=token&show_dialog=true`;
+    const authUrl =
+      `${SPOTIFY_AUTHORIZE_ENDPOINT}` +
+      `?client_id=${CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&scope=${SCOPES_COMBINED}` +
+      `&response_type=token` +
+      `&show_dialog=true`;
+
+    window.location.href = authUrl;
   };
+
   return (
-    <Flex
-      direction='column'
-      justifyContent='center'
-      alignItems='center'
-      alignContent='center'
-      wrap='nowrap'
-      gap='1rem'
-    >
-      <br />
+    <Flex direction="column" justifyContent="center" alignItems="center" gap="1rem">
       <Button
-        isFullWidth={false}
-        variation='primary'
-        loadingText=''
+        variation="primary"
         onClick={handleLogin}
-        ariaLabel='Login Button'
+        ariaLabel="Login with Spotify"
       >
-        <i className='fab fa-spotify' /> LOGIN WITH SPOTIFY
+        <i className="fab fa-spotify" /> LOGIN WITH SPOTIFY
       </Button>
+
       {isLoggedIn && (
         <Text
-          id='logged-in-validation'
-          variation='primary'
-          as='p'
-          lineHeight='1.2rem'
           fontWeight={600}
-          fontSize='0.75rem'
-          fontStyle='normal'
-          textDecoration='none'
-          ariaLabel='Login warning'
+          fontSize="0.75rem"
+          ariaLabel="Login success message"
         >
           YOU ARE LOGGED IN!
         </Text>
       )}
-
-      <br />
     </Flex>
   );
-}
+};
 
 export default Header;

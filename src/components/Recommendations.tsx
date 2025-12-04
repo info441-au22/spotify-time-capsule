@@ -1,6 +1,11 @@
 import React from "react";
 import { Flex, Button, Heading, TextField } from "@aws-amplify/ui-react";
-import { DataGrid, GridSelectionModel, GridColDef } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridSelectionModel,
+  GridColDef,
+  GridRowsProp,
+} from "@mui/x-data-grid";
 import { DataTableRow } from "./Filters";
 
 interface RecommendationsProps {
@@ -44,83 +49,61 @@ const Recommendations: React.FC<RecommendationsProps> = (props) => {
     setRecommendationsURI,
   } = props;
 
+  const rows: GridRowsProp = dataTableArr;
+
   return (
-    <Flex
-      direction="column"
-      justifyContent="center"
-      alignItems="center"
-      alignContent="center"
-      wrap="nowrap"
-      padding="2rem"
-      gap="1rem"
-    >
+    <Flex direction="column" alignItems="center" padding="2rem" gap="1rem">
       <Heading level={1}>Select Your Genre</Heading>
 
-      <Flex
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-        gap="1rem"
-      >
+      <Flex direction="row" alignItems="center" gap="1rem">
         {genreCheckboxComponent}
       </Flex>
 
       <Button
-        onClick={handleGetRecommendationsCallback}
         variation="primary"
         size="large"
-        ariaLabel="Get song recommendations button"
-        disabled={checkboxCounter === 0 || checkboxCounter > 3}
+        aria-label="get-recommendations"
+        isDisabled={checkboxCounter === 0 || checkboxCounter > 3}
+        onClick={handleGetRecommendationsCallback}
       >
         GET SONG RECOMMENDATIONS
       </Button>
 
-      <Flex
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-        gap="1rem"
-        height="625px"
-        width="1760px"
-      >
+      <Flex direction="row" alignItems="flex-start" gap="1rem" height="625px">
         <DataGrid
           rows={dataTableArr}
           columns={columns}
           checkboxSelection
+          disableSelectionOnClick
           pageSize={5}
+          rowsPerPageOptions={[5]}
           rowHeight={100}
-          onSelectionModelChange={(items) => {
-            if (items.length === 0) {
-              setHandlePlaylistNameCheck(true);
-            } else {
-              setHandlePlaylistNameCheck(false);
-            }
-            setRecommendationsCallback(items);
+          onSelectionModelChange={(selection) => {
+            const selected = selection as GridSelectionModel;
+            setHandlePlaylistNameCheck(selected.length === 0);
+            setRecommendationsCallback(selected);
           }}
+          sx={{ width: "100%", maxWidth: "1100px" }}
         />
-        <Flex direction="column" padding="2rem" gap="0.5rem">
+
+        <Flex direction="column" gap="0.75rem" width="400px">
           <TextField
-            ariaLabel="Choose playlist name input"
-            type="text"
+            aria-label="playlist-name-input"
+            label=""
             id="playlistName"
             name="playlistName"
-            variation="quiet"
             placeholder="Choose a playlist name"
             isRequired
-            padding="1rem"
-            disabled={handlePlaylistNameCheck}
+            isDisabled={handlePlaylistNameCheck}
             onChange={(e) => {
               handleRecommendationPlaylistNameCallback(e);
-              if (e.target.value.trim() !== "") {
-                setCreatePlaylistCheck(false);
-              } else {
-                setCreatePlaylistCheck(true);
-              }
+              setCreatePlaylistCheck(e.target.value.trim() === "");
             }}
           />
+
           <Button
-            ariaLabel="Create playlist button"
-            disabled={handleCreatePlaylistCheck}
+            aria-label="create-playlist"
+            isDisabled={handleCreatePlaylistCheck}
             onClick={() => {
               createRecommendationPlaylistCallback();
               setAddSongsButton(false);
@@ -128,9 +111,10 @@ const Recommendations: React.FC<RecommendationsProps> = (props) => {
           >
             CREATE PLAYLIST
           </Button>
+
           <Button
-            ariaLabel="Add songs to the playlist button"
-            disabled={handleAddSongsButton}
+            aria-label="add-songs"
+            isDisabled={handleAddSongsButton}
             onClick={() => {
               addSongsToRecommendationPlaylistCallback();
               setRecommendationsURI([]);
@@ -143,7 +127,5 @@ const Recommendations: React.FC<RecommendationsProps> = (props) => {
     </Flex>
   );
 };
-
-export default Recommendations;
 
 export default Recommendations;

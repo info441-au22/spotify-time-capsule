@@ -25,9 +25,9 @@ function parseSpotifyHash(hash: string): SpotifyAuthParams | null {
   const params = hash
     .substring(1)
     .split("&")
-    .reduce<Record<string, string>>((acc, part) => {
-      const [key, value] = part.split("=");
-      acc[key] = value;
+    .reduce<Record<string, string>>((acc, pair) => {
+      const [key, value] = pair.split("=");
+      if (key && value) acc[key] = decodeURIComponent(value);
       return acc;
     }, {});
 
@@ -53,25 +53,36 @@ const Header: React.FC = () => {
 
     setLoggedIn(true);
 
+    const expirationMs = Number(parsed.expires_in) * 1000;
     const timeout = setTimeout(() => {
       setLoggedIn(false);
-    }, Number(parsed.expires_in) * 1000);
+      localStorage.removeItem("accessToken");
+    }, expirationMs);
+
+    // clear hash without redirect
+    window.history.replaceState(null, "", window.location.pathname);
 
     return () => clearTimeout(timeout);
   }, []);
 
   const handleLogin = () => {
-    window.location.href = `${SPOTIFY_AUTHORIZE_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES_COMBINED}&response_type=token&show_dialog=true`;
+    const loginUrl =
+      `${SPOTIFY_AUTHORIZE_ENDPOINT}?client_id=${CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&scope=${SCOPES_COMBINED}` +
+      `&response_type=token&show_dialog=true`;
+
+    window.location.href = loginUrl;
   };
 
   return (
     <Flex direction="column" justifyContent="center" alignItems="center" gap="1rem">
-      <Button variation="primary" onClick={handleLogin} ariaLabel="Login Button">
+      <Button variation="primary" onClick={handleLogin} aria-label="login">
         <i className="fab fa-spotify" /> LOGIN WITH SPOTIFY
       </Button>
 
       {isLoggedIn && (
-        <Text fontWeight={600} fontSize="0.75rem" ariaLabel="logged in">
+        <Text fontWeight={600} fontSize="0.75rem" aria-label="login-success">
           YOU ARE LOGGED IN!
         </Text>
       )}

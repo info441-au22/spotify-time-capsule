@@ -10,18 +10,18 @@ const modalStyles: Modal.Styles = {
     left: "50%",
     right: "auto",
     bottom: "auto",
-    marginRight: "-50%",
     padding: "5rem",
     transform: "translate(-50%, -50%)",
   },
 };
 
 const GettingStarted: React.FC = () => {
-  const [visible, setVisible] = useState<boolean>(true);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const wasOpened = localStorage.getItem("pop_status");
-    if (!wasOpened) {
+    const opened = localStorage.getItem("pop_status");
+
+    if (!opened) {
       setVisible(false);
       localStorage.setItem("pop_status", "1");
     }
@@ -41,7 +41,7 @@ const GettingStarted: React.FC = () => {
   }
 
   return (
-    <Flex direction="column" justifyContent="center" alignItems="center">
+    <Flex direction="column" justifyContent="center" alignItems="center" padding="2rem">
       <Button variation="primary" onClick={openModal}>
         GETTING STARTED
       </Button>
@@ -51,24 +51,30 @@ const GettingStarted: React.FC = () => {
         style={modalStyles}
         onRequestClose={closeModal}
         contentLabel="Getting Started"
+        ariaHideApp={false}
       >
         <div>
           <h2>Spotify Capsules</h2>
 
           <p>
-            Welcome! This app lets you generate Time Capsule playlists or
-            genre-based recommendations using your Spotify listening history.
+            Welcome! This app helps you generate Time Capsule playlists or 
+            genre-based recommendation playlists using your Spotify listening 
+            history.
           </p>
 
           <h3>Instructions</h3>
           <ul>
-            <li>Select the “Time Capsule” or “Genre” tab</li>
-            <li>Log in with your Spotify account</li>
-            <li>Fill out the fields</li>
+            <li>Select the “Time Capsule” or “Genre” tab.</li>
+            <li>Log in with your Spotify account.</li>
+            <li>Choose your parameters.</li>
             <li>Create your playlist!</li>
           </ul>
 
-          <Button variation="primary" onClick={closeModal} marginTop="1rem">
+          <Button
+            variation="primary"
+            onClick={closeModal}
+            style={{ marginTop: "1rem" }}
+          >
             CLOSE
           </Button>
         </div>
