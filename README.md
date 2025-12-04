@@ -1,104 +1,143 @@
-# Quick Start Guide (VSCode & NPM)
+# 🎧 Spotify Time Capsule
 
-1. Open directory in VSCode
-2. In VSCode terminal, run `npm install`.
-3. Once installed, run `npm start`
-4. Open another VSCode terminal in same window and run `cd .\src\`
-5. run `node server.js`
-6. You now have both the React app running and the database/server side. Visit `localhost:3000` and get started!
+Spotify Time Capsule is a full-stack web application that allows users to generate **personalized playlists** based on their listening history, selected time periods, and preferred genres.
 
-# Project Description 
-### [click here to visit our live demo](https://dancing-smakager-83c27b.netlify.app/)
+Users authenticate with Spotify, explore their listening patterns across seasons and years, create nostalgic “Time Capsule” playlists, or generate genre-driven song recommendations. The app interacts directly with the Spotify Web API and includes a backend service for storing playlist statistics.
 
-For our project proposal, our target audience is going to be Spotify users. We envision Spotify users that are interested in viewing their analytics using our application to gain further insight on the things they listen to. People curious about their listening habits and how it evolves may want to use our application as a way to look at that information, then use it to further explore possible music interests. 
+---
 
-We ourselves as Spotify users have come across the problem of not being able to easily view the statistics associated with the music we listen to, except when Spotify Wrapped gets released at the end of each year. We know Spotify Wrapped is successful as at the end of every year it's not uncommon to see users sharing their stats across social media, and believe that it would be beneficial to have a way to view stats like the ones Spotify Wrapped provides at any given time through our application. No longer would the users be at the mercy of when Spotify decides to release Spotify Wrapped in seeing how their music listening habits have changed. Anyone who wants to view their stats would be able to through what our application provides.
+## 🚀 Tech Stack
 
-We believe that a lot of Spotify users would find this application beneficial, and want to be able to view their listening habits and see the 
-statistics associated with what type of music they listen to. Having the ability to further explore those statistics with the ability to look at certain time frames, genres, playlists, etcetera would enable users to find more music aligned with their interests.
+### **Frontend**
+- **React (Hooks + Functional Components)**
+- **AWS Amplify UI** — For layout, forms, buttons, tabs, modals
+- **React Bootstrap** — Dropdowns and layout helpers
+- **Material UI DataGrid** — Displays recommended track lists
+- **Axios** — For HTTP requests to Spotify API and backend
+- **LocalStorage** — Stores Spotify OAuth tokens
 
-# Architectural Diagram
-[Latest Version of Diagram](https://drive.google.com/file/d/1w2agbpS1FLcfwB96QfJlsfnvM6AnF0ey/view)
+### **Backend**
+- **Node.js + Express**
+- REST API for storing user-created playlist IDs
+  - `POST /api/playlists/`
+  - `GET /api/playlists/playlistIds`
 
-# User Stories
+### **Authentication**
+- **Spotify OAuth 2.0 (Implicit Grant Flow)**
+- Stores:
+  - `access_token`
+  - `expires_in`
+  - `token_type`
 
-|Priority|User|Description|Technical Implementation| 
-|--------|----|-----------|------------------------|
-|P0|As a user|I want to be able to login with Spotify|Spotify Authentication| 
-|P0|As a user|As a Spotify user, I want to be able to select a time frame and create a randomized “Spotify Time Capsule” playlist from my library.|Grab songs that the user added to any of their playlists during the chosen time period from Spotify’s API (Get), and POST the songs to a playlist in the users library through the same API.
-|P1|As a user|As a Spotify user, I want to be able to select genres and view recommendations that are curated from my playlist libraries artists and genres.|Grab genres that the user listens to and allow them to choose from them, then randomly select five artists and songs from the user’s library to generate a seed that is sent to Spotify’s API (Get). POST the songs to a table in the UI that lets the user see their recommendations.
+### **Spotify API Usage**
+- `/v1/me` — Get user profile data  
+- `/v1/me/playlists` — Get user playlists  
+- `/v1/recommendations` — Get recommendations  
+- `/v1/users/{id}/playlists` — Create user playlists  
+- `/v1/playlists/{id}/tracks` — Add songs to playlists  
 
+---
 
-# Features
+## ✨ Key Features
 
-**1: Accounts** - Spotify user account auth that allows Capsules to export into your Spotify playlists library.
+### 🎵 Time Capsule Playlist Generator
+- Select **Year** and **Season**
+- Choose number of songs (up to 100)
+- App retrieves songs added during that time period
+- Randomizes selection
+- Creates playlist and populates it with filtered songs
 
-**2: "Time Capsule" functionality** - Let user select a given season and year, then create a random playlist of songs from that period that were in the users song library.
+### 💡 Genre-Based Song Recommendations
+- Select 1–3 genres
+- Fetch recommended tracks from Spotify
+- View results in a scrollable, sortable DataGrid
+- Select tracks and create a custom playlist
+- Add selected tracks to the new playlist
 
-**3: "Recommendations" functionality** - Let user select from relevant genres, then create a list of recommended songs from those genres utilizing a unique seed tied to artists, songs, and genres the user has in their playlists library.
+### 🔐 Secure Spotify Login
+- Instant login via OAuth
+- Automatically stores and reads access tokens
+- Updates interface reactively
 
-# Tech
+### 📈 Playlist Statistics
+- Backend tracks number of total playlists created
+- Displayed dynamically on the Time Capsule page
 
-**Hosting:** Netlify
+### 🖥 User-Friendly UI
+- AWS Amplify and Material UI for responsive, modern layout  
+- Modal-based onboarding (Getting Started)
+- Clear validation messages
+- Disabled/enabled buttons based on user interaction logic
 
-**Auth:** Spotify Auth 
+---
 
-**Tech:** Reactjs, MongoDB, Axios and Spotify API
+## 🧠 Architecture Overview
 
-**Styling:** AmplifyUI
+src/
+┣ components/
+┃ ┣ Filters.jsx              # Core Spotify logic (900+ lines)
+┃ ┣ GettingStarted.jsx       # Onboarding modal
+┃ ┣ Recommendations.jsx      # Recommendations UI
+┃ ┣ TimeCapsule.jsx          # Time capsule UI
+┃ ┣ SpotifyAuthButton.jsx    # OAuth login logic
+┃ ┗ Sections.jsx
+┣ controllers/               # Express controllers
+┣ models/                    # PlaylistId storage model
+┣ routes/                    # API routes
+┣ server.js                  # Backend server entry
+┣ App.js
+┣ index.js
+┗ styles.css
 
+---
 
-# Endpoints
+## 🛠 Planned Improvements
 
-**/signin**
+### 🔄 Convert Project to TypeScript
+- Add strong typing for:
+  - Spotify track objects
+  - Recommendations
+  - User playlists
+  - API responses
+  - Props for each component
 
-POST: Sign in
+### 📦 Modularize `Filters.jsx` (900+ lines → multiple clean files)
+Split into:
+- `useSpotifyAuth.ts`
+- `useUserPlaylists.ts`
+- `useTimeCapsule.ts`
+- `useRecommendations.ts`
+- `spotifyApi.ts` (Axios wrapper)
+- `dateUtils.ts`
+- `escape.ts`
+- `types/spotify.ts`
 
-**/signout**
+This eliminates duplication and improves readability/testability.
 
-POST: Sign out
+### ⚠ Improve Error Handling
+- Add centralized API error wrapper
+- Show errors using UI components instead of `console.log`
+- Handle rate limits with user-friendly messaging
+- Validate state before API calls
+- Use async/await instead of deeply nested `.then()`
 
+### 🧹 Clean up state management
+- Replace dozens of individual `useState` calls with:
+  - `useReducer`, **or**
+  - Zustand/Recoil (optional recommendation)
 
-**api.spotify.com/v1/me**
+### 🔐 Migrate OAuth to Spotify PKCE Flow
+Implicit flow is deprecated → PKCE is more secure.
 
-GET: Get userId (after auth)
+---
 
+# 🎯 Final Goal
 
-**api.spotify.com/v1/playlists/**
+A modern, testable, TypeScript-powered Spotify application with:
 
-GET: Retrieve 50 playlists from users playlist library (or as many as exist) 
-
-
-**api.spotify.com/v1/playlists/:playlistId**
-
-GET: Retrieve a maximum of 100 songs from a playlist
-
-
-**api.spotify.com/v1/users/:userId/playlists**
-
-POST: Using userId of logged in user, create a new Spotify playlist
-
-
-**api.spotify.com/v1/playlists/:createdPlaylistId/tracks**
-
-POST: Using createdPlaylistId, populated the playlist with capsule of songs.
-
-**api.spotify.com/v1/recommendations/?seed_artists="[userArtistList]"&seed_genres="[userGenresArr]"&seed_tracks="[userSongsList]"&limit=20**
-
-GET: Using random artists, songs, and genres chosen by the user, GET a list of recommendations to display back to the user.
-
-# Database Schema (MongoDB)
-
-#### User
-- User ID
-
-#### Songs
-- Song URI
-
-#### Artists
-- Artist URI
-
-#### Playlists
-- Playlist ID
-
-###### **Note:** Why didn't we used saved songs? We explored this- We know not everybody makes playlists, but Spotify API has limitations in place for retrieving a users saved songs. With the current functionality they offer, we could only process 50 saved songs at a time. With playlists we are also limited to 50, but with 50 playlists we are able to offer a lot more variety then with 50 songs.
+- Clean architecture  
+- Smaller focused components  
+- Strong API types  
+- Centralized error handling  
+- Reusable Spotify hooks  
+- Professional-grade code suitable for portfolio & interviews  
